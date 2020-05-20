@@ -3,6 +3,12 @@ from datetime import date
 fileAddress = ""
 email = []
 password = []
+gmailmail = []
+gmailpassword = []
+yahoomail = []
+yahoopassword = []
+othermail = []
+otherpassword = []
 
 
 def setfileadress():
@@ -33,6 +39,7 @@ def errorregister(errorcode, errormessage, contents):
     data = "<{datetime}> - Error Code - {errcode}\nMessage - {msg}\nContents - {contents}\n\n".format(
         datetime=timestamp, errcode=errorcode, msg=errormessage, contents=contents)
     f.write(data)
+    f.close()
 
 
 def getcreds(add):
@@ -80,9 +87,9 @@ def getcreds(add):
             errorregister(2, "Faliure at line {line}. no unique identifier detected.".format(line=i), tempData)
             failure = failure + 1
 
-    print("Failure - ", failure)
+    print("\nFailure - ", failure)
     print("Success - ", success)
-    print("\n\nDetection Successful with the stats mentioned above. Validating the integrity of all email and "
+    print("\nDetection Successful with the stats mentioned above. Validating the integrity of all email and "
           "password...")
     validateemailpassword()
 
@@ -101,6 +108,26 @@ def validateemailpassword():
             email.pop(i)
             password.pop(i)
     print("File Validated, Total credentials is ", len(email))
+    print("Starting Credential Segregation....")
+    credssegregator()
+
+
+def credssegregator():
+    for i in range(0, len(email)):
+        tempDataEmail = email[i]
+        if '@gmail.com' in tempDataEmail:
+            gmailmail.append(email[i])
+            gmailpassword.append(password[i])
+        elif '@yahoo.' in tempDataEmail:
+            yahoomail.append(email[i])
+            yahoopassword.append(password[i])
+        else:
+            othermail.append(email[i])
+            otherpassword.append(password[i])
+
+    print("\n\nTotal Gmail Accounts - ", len(gmailmail))
+    print("Total Yahoo Accounts - ", len(yahoopassword))
+    print("Others - ", len(otherpassword))
 
 
 setfileadress()
