@@ -50,19 +50,40 @@ def getcreds(add):
     data = data.read()
     print("Data Read successfully, Parsing.... please wait.")
     bulk = data.split('\n')
-    print("Parsed Successfully. Detecting emails and password seperated by unique identifier ':' and '|' . . .")
+    print("Parsed Successfully. Detecting emails and password seperated by unique identifier ':' , '|' , '::' . .")
 
     failure = 0
     success = 0
     for i in range(0, len(bulk)):
         tempData = bulk[i]
-        if ':' in tempData:
+        if '::' in tempData:
+            if '|' in tempData:
+                errorregister(1, "Faliure at line {line}. 2 unique identifier detected.".format(line=i), tempData)
+                failure = failure + 1
+            else:
+                tempDataCred = tempData.split('::')
+                if '@' not in tempDataCred[0]:
+                    errorregister(4, "Email does not have an @. bro is your combolist drunk? at index {line}".format(
+                        line=i), tempDataCred[0])
+                    failure = failure + 1
+                elif len(tempDataCred) > 2:
+                    errorregister(1, "Faliure at line {line}. 2 unique identifier detected.".format(line=i), tempData)
+                    failure = failure + 1
+                else:
+                    email.append(tempDataCred[0])
+                    password.append(tempDataCred[1])
+                    success = success + 1
+        elif ':' in tempData:
             if '|' in tempData:
                 errorregister(1, "Faliure at line {line}. 2 unique identifier detected.".format(line=i), tempData)
                 failure = failure + 1
             else:
                 tempDataCred = tempData.split(':')
-                if len(tempDataCred) > 2:
+                if '@' not in tempDataCred[0]:
+                    errorregister(4, "Email does not have an @. bro is your combolist drunk? at index {line}".format(
+                        line=i), tempDataCred[0])
+                    failure = failure + 1
+                elif len(tempDataCred) > 2:
                     errorregister(1, "Faliure at line {line}. 2 unique identifier detected.".format(line=i), tempData)
                     failure = failure + 1
                 else:
@@ -76,7 +97,11 @@ def getcreds(add):
                 failure = failure + 1
             else:
                 tempDataCred = tempData.split('|')
-                if len(tempDataCred) > 2:
+                if '@' not in tempDataCred[0]:
+                    errorregister(4, "Email does not have an @. bro is your combolist drunk? at index {line}".format(
+                        line=i), tempDataCred[0])
+                    failure = failure + 1
+                elif len(tempDataCred) > 2:
                     errorregister(1, "Faliure at line {line}. 2 unique identifier detected.".format(line=i), tempData)
                     failure = failure + 1
                 else:
@@ -91,25 +116,15 @@ def getcreds(add):
     print("Success - ", success)
     print("\nDetection Successful with the stats mentioned above. Validating the integrity of all email and "
           "password...")
-    validateemailpassword()
-
-
-def validateemailpassword():
     if len(email) != len(password):
         print("Length of email and password arrays don't match, sum ting wong with yo file or something man.")
         errorregister(3, "Fatal Error - Length of email and password arrays don't match, sum ting wong with yo file "
                          "or something man.", " ")
         setfileadress()
-    for i in range(0, len(password)):
-        tempDataEmail = email[i]
-        if '@' not in tempDataEmail:
-            errorregister(4, "Email does not have an @. bro is your combolist drunk? at index {line}".format(line=i),
-                          email[i])
-            email.pop(i)
-            password.pop(i)
-    print("File Validated, Total credentials is ", len(email))
-    print("Starting Credential Segregation....")
-    credssegregator()
+    else:
+        print("File Validated, Total credentials is ", len(email))
+        print("Starting Credential Segregation....")
+        credssegregator()
 
 
 def credssegregator():
